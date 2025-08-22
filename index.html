@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Updated page title to Expenzo -->
+    <title>Expenzo - Financial Wellness Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Added attractive Google Fonts for better client appeal -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Updated font family to use attractive Google Fonts */
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
+        
+        .brand-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+        }
+        .card-gradient-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .card-gradient-blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #0891b2 100%);
+        }
+        .card-gradient-purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+        }
+        .card-gradient-orange {
+            background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .tab-button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto p-6 space-y-8">
+        <!-- Header -->
+        <div class="text-center space-y-2">
+            <!-- Updated main heading with attractive brand styling -->
+            <h1 class="text-5xl brand-title">Expenzo</h1>
+            <p class="text-lg text-gray-600 font-medium">Take control of your financial future</p>
+        </div>
+
+        <!-- Key Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="card-gradient-green text-white rounded-lg p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-semibold">Net Worth</h3>
+                    <i class="fas fa-trending-up"></i>
+                </div>
+                <div class="text-2xl font-bold" id="net-worth">₹15,82,000</div>
+                <p class="text-xs opacity-90 font-medium">+12.5% from last month</p>
+            </div>
+
+            <div class="card-gradient-blue text-white rounded-lg p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-semibold">Monthly Savings</h3>
+                    <i class="fas fa-piggy-bank"></i>
+                </div>
+                <div class="text-2xl font-bold" id="monthly-savings">₹1,12,350</div>
+                <p class="text-xs opacity-90 font-medium">26% of income</p>
+            </div>
+
+            <div class="card-gradient-purple text-white rounded-lg p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-semibold">Total Savings</h3>
+                    <i class="fas fa-target"></i>
+                </div>
+                <div class="text-2xl font-bold" id="total-savings">₹7,28,251</div>
+                <p class="text-xs opacity-90 font-medium">3 active goals</p>
+            </div>
+
+            <div class="card-gradient-orange text-white rounded-lg p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-semibold">Total Debt</h3>
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="text-2xl font-bold" id="total-debt">₹21,84,750</div>
+                <p class="text-xs opacity-90 font-medium">3 active debts</p>
+            </div>
+        </div>
+
+        <!-- Main Content Tabs -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <!-- Tab Navigation -->
+            <div class="flex flex-wrap gap-2 mb-6 bg-gray-100 p-1 rounded-lg">
+                <button class="tab-button active px-4 py-2 rounded-md font-semibold" onclick="showTab('overview')">Overview</button>
+                <button class="tab-button px-4 py-2 rounded-md font-semibold" onclick="showTab('expenses')">Expenses</button>
+                <button class="tab-button px-4 py-2 rounded-md font-semibold" onclick="showTab('debts')">Debts</button>
+                <button class="tab-button px-4 py-2 rounded-md font-semibold" onclick="showTab('savings')">Savings</button>
+                <button class="tab-button px-4 py-2 rounded-md font-semibold" onclick="showTab('insights')">Insights</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Income vs Expenses Chart -->
+                    <div class="bg-white border rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-2">Income vs Expenses Trend</h3>
+                        <p class="text-gray-600 mb-4">Monthly comparison over the last 5 months</p>
+                        <div class="chart-container">
+                            <canvas id="incomeExpensesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Expense Breakdown -->
+                    <div class="bg-white border rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-2">Expense Breakdown</h3>
+                        <p class="text-gray-600 mb-4">Current month spending by category</p>
+                        <div class="chart-container">
+                            <canvas id="expenseBreakdownChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white border rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-2">Quick Actions</h3>
+                    <p class="text-gray-600 mb-4">Manage your finances efficiently</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <button class="bg-blue-600 text-white h-20 rounded-lg flex flex-col items-center justify-center gap-2 hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-dollar-sign text-xl"></i>
+                            Add Expense
+                        </button>
+                        <button class="border border-gray-300 h-20 rounded-lg flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-credit-card text-xl"></i>
+                            Pay Debt
+                        </button>
+                        <button class="border border-gray-300 h-20 rounded-lg flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-target text-xl"></i>
+                            Set Goal
+                        </button>
+                        <button class="border border-gray-300 h-20 rounded-lg flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-chart-line text-xl"></i>
+                            View Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expenses Tab -->
+            <div id="expenses" class="tab-content">
+                <div class="space-y-6">
+                    <!-- Add Expense Form -->
+                    <div class="bg-white border rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Add New Expense</h3>
+                        <form id="expense-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <input type="text" id="expense-description" placeholder="Description" class="border rounded-lg px-3 py-2" required>
+                            <input type="number" id="expense-amount" placeholder="Amount" step="0.01" class="border rounded-lg px-3 py-2" required>
+                            <select id="expense-category" class="border rounded-lg px-3 py-2" required>
+                                <option value="">Select Category</option>
+                                <option value="Housing">Housing</option>
+                                <option value="Food">Food</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add Expense</button>
+                        </form>
+                    </div>
+
+                    <!-- Recent Expenses -->
+                    <div class="bg-white border rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Recent Expenses</h3>
+                        <div id="expenses-list" class="space-y-3">
+                            <!-- Expenses will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Debts Tab -->
+            <div id="debts" class="tab-content">
+                <div class="space-y-6">
+                    <!-- Debt Overview -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-red-800 mb-2">Credit Card</h3>
+                            <div class="text-2xl font-bold text-red-600 mb-1">₹2,03,750</div>
+                            <p class="text-sm text-red-600">Min Payment: ₹7,075/month</p>
+                            <p class="text-sm text-red-600">Interest Rate: 18.5%</p>
+                            <button class="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700">Make Payment</button>
+                        </div>
+
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-yellow-800 mb-2">Student Loan</h3>
+                            <div class="text-2xl font-bold text-yellow-600 mb-1">₹12,98,800</div>
+                            <p class="text-sm text-yellow-600">Min Payment: ₹14,980/month</p>
+                            <p class="text-sm text-yellow-600">Interest Rate: 4.5%</p>
+                            <button class="mt-3 bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-yellow-700">Make Payment</button>
+                        </div>
+
+                        <div class="bg-orange-50 border border-orange-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-orange-800 mb-2">Car Loan</h3>
+                            <div class="text-2xl font-bold text-orange-600 mb-1">₹6,82,600</div>
+                            <p class="text-sm text-orange-600">Min Payment: ₹26,640/month</p>
+                            <p class="text-sm text-orange-600">Interest Rate: 6.2%</p>
+                            <button class="mt-3 bg-orange-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-700">Make Payment</button>
+                        </div>
+                    </div>
+
+                    <!-- Debt Payoff Strategy -->
+                    <div class="bg-white border rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Debt Payoff Strategy</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="border rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Avalanche Method</h4>
+                                <p class="text-sm text-gray-600 mb-3">Pay minimums on all debts, then focus extra payments on highest interest rate debt first.</p>
+                                <div class="text-sm space-y-1">
+                                    <div>1. Credit Card (18.5%)</div>
+                                    <div>2. Car Loan (6.2%)</div>
+                                    <div>3. Student Loan (4.5%)</div>
+                                </div>
+                            </div>
+                            <div class="border rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Snowball Method</h4>
+                                <p class="text-sm text-gray-600 mb-3">Pay minimums on all debts, then focus extra payments on smallest balance first.</p>
+                                <div class="text-sm space-y-1">
+                                    <div>1. Credit Card (₹2,03,750)</div>
+                                    <div>2. Car Loan (₹6,82,600)</div>
+                                    <div>3. Student Loan (₹12,98,800)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Savings Tab -->
+            <div id="savings" class="tab-content">
+                <div class="space-y-6">
+                    <!-- Savings Goals -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-green-800 mb-2">Emergency Fund</h3>
+                            <div class="mb-3">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>₹5,41,250 of ₹8,33,000</span>
+                                    <span>65%</span>
+                                </div>
+                                <div class="w-full bg-green-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-green-600">Deadline: Dec 2024</p>
+                            <button class="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700">Add to Goal</button>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-blue-800 mb-2">Vacation</h3>
+                            <div class="mb-3">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>₹99,960 of ₹2,49,900</span>
+                                    <span>40%</span>
+                                </div>
+                                <div class="w-full bg-blue-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 40%"></div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-blue-600">Deadline: Jun 2024</p>
+                            <button class="mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Add to Goal</button>
+                        </div>
+
+                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-purple-800 mb-2">New Car</h3>
+                            <div class="mb-3">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>₹7,28,750 of ₹20,82,500</span>
+                                    <span>35%</span>
+                                </div>
+                                <div class="w-full bg-purple-200 rounded-full h-2">
+                                    <div class="bg-purple-600 h-2 rounded-full" style="width: 35%"></div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-purple-600">Deadline: Mar 2025</p>
+                            <button class="mt-3 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">Add to Goal</button>
+                        </div>
+                    </div>
+
+                    <!-- Savings Challenge -->
+                    <div class="bg-white border rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Weekly Savings Challenge</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                    <span class="font-medium">Current Streak</span>
+                                    <span class="text-2xl font-bold text-green-600">12 days</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                    <span class="font-medium">Points Earned</span>
+                                    <span class="text-2xl font-bold text-blue-600">2,450</span>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <h4 class="font-semibold">This Week's Challenge</h4>
+                                <p class="text-sm text-gray-600">Save ₹4,165 by cutting unnecessary expenses</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full" style="width: 70%"></div>
+                                </div>
+                                <p class="text-sm">₹2,915 of ₹4,165 saved</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insights Tab -->
+            <div id="insights" class="tab-content">
+                <div class="space-y-6">
+                    <!-- Financial Health Score -->
+                    <div class="bg-white border rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Financial Health Score</h3>
+                        <div class="flex items-center justify-center mb-4">
+                            <div class="relative w-32 h-32">
+                                <svg class="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
+                                    <path class="text-gray-300" stroke="currentColor" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                                    <path class="text-green-600" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="75, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-green-600">75</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-center text-gray-600">Good financial health! Keep up the great work.</p>
+                    </div>
+
+                    <!-- Personalized Tips -->
+                    <div class="bg-white border rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Personalized Financial Tips</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
+                                <i class="fas fa-lightbulb text-blue-600 mt-1"></i>
+                                <div>
+                                    <h4 class="font-medium text-blue-800">Reduce Credit Card Interest</h4>
+                                    <p class="text-sm text-blue-700">Consider transferring your credit card balance to a 0% APR card to save on interest.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
+                                <i class="fas fa-chart-line text-green-600 mt-1"></i>
+                                <div>
+                                    <h4 class="font-medium text-green-800">Increase Emergency Fund</h4>
+                                    <p class="text-sm text-green-700">You're doing great! Try to save an additional ₹10,000/month to reach your emergency fund goal faster.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg">
+                                <i class="fas fa-piggy-bank text-yellow-600 mt-1"></i>
+                                <div>
+                                    <h4 class="font-medium text-yellow-800">Optimize Spending</h4>
+                                    <p class="text-sm text-yellow-700">Your entertainment spending is 15% above average. Consider setting a monthly budget for this category.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spending Trends -->
+                    <div class="bg-white border rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Spending Trends</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-medium mb-2">Top Categories This Month</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm">Housing</span>
+                                        <span class="text-sm font-medium">₹99,960</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm">Food</span>
+                                        <span class="text-sm font-medium">₹37,485</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm">Transportation</span>
+                                        <span class="text-sm font-medium">₹31,654</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium mb-2">Monthly Comparison</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm">This Month</span>
+                                        <span class="text-sm font-medium text-red-600">₹3,20,785</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm">Last Month</span>
+                                        <span class="text-sm font-medium">₹3,49,980</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm">Difference</span>
+                                        <span class="text-sm font-medium text-green-600">-₹29,195 (8.3%)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data
+        const mockData = {
+            totalBalance: 1037065,
+            monthlyIncome: 433160,
+            monthlyExpenses: 320785,
+            savings: 728917,
+            debts: [
+                { name: "Credit Card", amount: 203750, minPayment: 7075, interestRate: 18.5 },
+                { name: "Student Loan", amount: 1298800, minPayment: 14980, interestRate: 4.5 },
+                { name: "Car Loan", amount: 682600, minPayment: 26640, interestRate: 6.2 },
+            ],
+            expenses: [
+                { category: "Housing", amount: 99960, color: "#3b82f6" },
+                { category: "Food", amount: 37485, color: "#10b981" },
+                { category: "Transportation", amount: 31654, color: "#f59e0b" },
+                { category: "Entertainment", amount: 18326, color: "#ef4444" },
+                { category: "Utilities", amount: 14994, color: "#8b5cf6" },
+            ],
+            monthlyTrend: [
+                { month: "Jan", income: 433160, expenses: 341530 },
+                { month: "Feb", income: 433160, expenses: 324870 },
+                { month: "Mar", income: 449820, expenses: 320785 },
+                { month: "Apr", income: 433160, expenses: 349980 },
+                { month: "May", income: 433160, expenses: 320785 },
+            ],
+            recentExpenses: [
+                { description: "Grocery Shopping", amount: 7124, category: "Food", date: "2024-01-15" },
+                { description: "Gas Station", amount: 3749, category: "Transportation", date: "2024-01-14" },
+                { description: "Netflix Subscription", amount: 1332, category: "Entertainment", date: "2024-01-13" },
+                { description: "Electric Bill", amount: 9996, category: "Utilities", date: "2024-01-12" },
+            ]
+        };
+
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Income vs Expenses Chart
+            const ctx1 = document.getElementById('incomeExpensesChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: mockData.monthlyTrend.map(item => item.month),
+                    datasets: [{
+                        label: 'Income',
+                        data: mockData.monthlyTrend.map(item => item.income),
+                        backgroundColor: '#3b82f6',
+                    }, {
+                        label: 'Expenses',
+                        data: mockData.monthlyTrend.map(item => item.expenses),
+                        backgroundColor: '#ef4444',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Expense Breakdown Chart
+            const ctx2 = document.getElementById('expenseBreakdownChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: mockData.expenses.map(item => item.category),
+                    datasets: [{
+                        data: mockData.expenses.map(item => item.amount),
+                        backgroundColor: mockData.expenses.map(item => item.color),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Populate expenses list
+        function populateExpensesList() {
+            const expensesList = document.getElementById('expenses-list');
+            expensesList.innerHTML = mockData.recentExpenses.map(expense => `
+                <div class="flex justify-between items-center p-3 border rounded-lg">
+                    <div>
+                        <div class="font-medium">${expense.description}</div>
+                        <div class="text-sm text-gray-600">${expense.category} • ${expense.date}</div>
+                    </div>
+                    <div class="text-lg font-semibold text-red-600">-₹${expense.amount.toLocaleString('en-IN')}</div>
+                </div>
+            `).join('');
+        }
+
+        // Calculate and update metrics
+        function updateMetrics() {
+            const totalDebt = mockData.debts.reduce((sum, debt) => sum + debt.amount, 0);
+            const netWorth = mockData.totalBalance + mockData.savings - totalDebt;
+            const monthlySavings = mockData.monthlyIncome - mockData.monthlyExpenses;
+            
+            document.getElementById('net-worth').textContent = `₹${netWorth.toLocaleString('en-IN')}`;
+            document.getElementById('monthly-savings').textContent = `₹${monthlySavings.toLocaleString('en-IN')}`;
+            document.getElementById('total-savings').textContent = `₹${mockData.savings.toLocaleString('en-IN')}`;
+            document.getElementById('total-debt').textContent = `₹${totalDebt.toLocaleString('en-IN')}`;
+        }
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateMetrics();
+            initCharts();
+            populateExpensesList();
+        });
+    </script>
+</body>
+</html>
